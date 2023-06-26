@@ -1,0 +1,56 @@
+<html>
+<head>
+    <title>MySQL data</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script>
+    <style>
+        .active {
+            color: green;
+        }
+        .inactive {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome page</h1>
+    <h2>All User Details</h2>
+    <ul id="usernames"></ul>
+    <p>Active Users: <span id="activeCount"></span></p>
+    <script>
+        const socket = io.connect('http://localhost:3000');
+
+        socket.on('broadcast', (data) => {
+          const usernames = document.getElementById("usernames");
+          const activeUsers = JSON.parse(localStorage.getItem("activeUsers")) || [];
+
+          // clear the previous list before adding new items
+          usernames.innerHTML = "";
+
+          // count active users and display the count
+          const activeCount = activeUsers.length;
+          const activeCountElement = document.getElementById("activeCount");
+          activeCountElement.textContent = activeCount;
+
+          for (let i = 0; i < data.length; i++) {
+            const li = document.createElement("li");
+            const username = data[i].username;
+            const isActive = activeUsers.includes(username) ? "active" : "inactive";
+            li.textContent = `${username}.......[${isActive}]`;
+            li.classList.add(isActive);
+            usernames.appendChild(li);
+          }
+        });
+
+        const username = localStorage.getItem("username");
+        if (username) {
+          let activeUsers = JSON.parse(localStorage.getItem("activeUsers")) || [];
+          activeUsers.push(username);
+          localStorage.setItem("activeUsers", JSON.stringify(activeUsers));
+          window.addEventListener('beforeunload', (event) => {
+            activeUsers = activeUsers.filter(u => u !== username);
+            localStorage.setItem("activeUsers", JSON.stringify(activeUsers));
+          });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<html>
+<head>
+    <title>MySQL data</title>
+    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+</head>
+<body>
+    <h1>All User Details -</h1>
+    <ul id="usernames"></ul>
+    <script>
+        const socket = io.connect('http://localhost:3000');
+        socket.on('mysqldata', (data) => {
+            const usernames = document.getElementById("usernames");
+            console.log(usernames)
+            for (let i = 0; i < data.length; i++) {
+                const li = document.createElement("li");
+                li.textContent = data[i].username;
+                usernames.appendChild(li);
+            }
+
+            const form = document.getElementById("login-form");
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+                const emailInput = document.getElementById("email");
+                const email = emailInput.value;
+                console.log(`email from user ${email}`)
+                const passwordInput = document.getElementById("password");
+                const password = passwordInput.value;
+                console.log(`password from user ${password}`)
+                for (let i = 0; i < data.length; i++) {
+                    if (email == data[i].email && password == data[i].password) {
+                        localStorage.setItem("username", data[i].username);
+                        window.location.href = "welcome.html";
+                        return;
+                    }
+                }
+                window.location.href = "error.html";
+            });
+        });
+    </script>
+    <center>
+        <form id="login-form">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <br><br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <br><br>
+            <button type="submit">Submit</button>
+        </form>
+    </center>
+</body>
+</html>
